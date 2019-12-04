@@ -5,14 +5,16 @@ from tableauhyperapi import HyperProcess, Telemetry, \
 import config as cf
 from spark_connect import sparkConnect
 
-test = sparkConnect()
-schema = test[1]
-print(schema)
+# test = sparkConnect()
+# schema = test[1]
+# print(schema)
+
+
 
 customer_table = TableDefinition(
     # Since the table name is not prefixed with an explicit schema name, the table will reside in the default "public" namespace.
     table_name=cf.table_name,
-    columns=schema
+    columns=sparkConnect()
 )
 
 
@@ -33,7 +35,7 @@ def run_create_hyper_file_from_csv():
             # `execute_command` executes a SQL statement and returns the impacted row count.
             count_in_customer_table = connection.execute_command(
                 command=f"COPY {customer_table.table_name} from {escape_string_literal(cf.input_file_path)} with "
-                f"(format csv, NULL 'NULL', delimiter ',', header)")
+                f"(format csv, NULL 'NULL', delimiter ',', header, quote '\"', escape '\\')")
 
             print(
                 f"The number of rows in table {customer_table.table_name} is {count_in_customer_table}.")

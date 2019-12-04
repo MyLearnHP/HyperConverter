@@ -7,7 +7,7 @@ password = "Devil@1998"
 
 charset = 'UTF8'
 
-db_name = "market_scan"
+db_name = "vocabulary"
 table_name = "Sample Data"
 
 table = db_name + '.' + table_name

@@ -2,7 +2,8 @@ from pyspark.sql import SparkSession
 import glob
 import config as cf
 from dict_list import type_
-from tableauhyperapi import TableDefinition, SqlType, NOT_NULLABLE, Nullability, NULLABLE
+from tableauhyperapi import HyperProcess, Telemetry, Connection, CreateMode, NOT_NULLABLE, NULLABLE, SqlType, TableDefinition, \
+    Inserter, escape_name, escape_string_literal, HyperException
 import re
 
 spark = SparkSession.builder.master("local").appName("DB_test").getOrCreate()
@@ -38,33 +39,38 @@ def sparkConnect():
         cf.input_file_path = path[0]
         print('\n', cf.input_file_path, '\n')
 
-    col = df.schema
-    col = list(col)
-    x = []
-    for i in range(len(col)):
-        col[i] = str(col[i])
-        col[i] = re.split('\(|,', col[i])
-        col[i] = col[i][1:-1]
-        temp = col[i][1]
-        col[i][1] = temp[:-4]
+    col = list(df.dtypes)
 
     for i in range(len(col)):
+        col[i] = list(col[i])
         col[i][1] = type_[col[i][1]]
     print('\n', col, '\n')
 
-    #create list of column schema
     x = []
     for i, j in col:
-        df.agg(max(df.columns(j))).show()
         if j == 'varchar':
-            x.append(TableDefinition.Column(i, SqlType.varchar(100), NULLABLE))
+            max_length = df.agg({i: "max"}).collect()[0]
+            #print(max_length)
+            xyz = max_length["max({})".format(i)]
+
+            if xyz != None:
+                max_length = len(xyz)
+                if 19 <= max_length <= 40:
+                    max_length = 100
+                else:
+                    max_length = 30
+            else:
+                max_length = 35
+
+
+            print(i,j, max_length)
+            x.append(TableDefinition.Column(i, SqlType.varchar(max_length+1), NULLABLE))
         elif j == 'int':
             x.append(TableDefinition.Column(i, SqlType.int(), NULLABLE))
         elif j == 'date':
             x.append(TableDefinition.Column(i, SqlType.date(), NULLABLE))
         elif j == 'numeric':
-            x.append(TableDefinition.Column(
-                i, SqlType.numeric(10, 4), NULLABLE))
+            x.append(TableDefinition.Column(i, SqlType.numeric(10, 4), NULLABLE))
         elif j == 'bool':
             x.append(TableDefinition.Column(i, SqlType.bool(), NULLABLE))
         elif j == 'big_int':
@@ -72,4 +78,4 @@ def sparkConnect():
         elif j == 'double':
             x.append(TableDefinition.Column(i, SqlType.double(), NULLABLE))
     print(x)
-    return cf.input_file_path,x
+    return x
