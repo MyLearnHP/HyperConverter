@@ -17,7 +17,7 @@ def sparkConnect():
             .option("header", cf.first_row_is_header) \
             .option("sep", cf.delimiter) \
             .load(cf.input_file_path)
-        print('\n', cf.input_file_path, '\n', cf.schema, '\n')
+        # print('\n', cf.input_file_path, '\n', cf.schema, '\n')
 
     # fetching table from db from databricks
     elif cf.file_type == 'jdbc':
@@ -27,8 +27,8 @@ def sparkConnect():
             .option("dbtable", cf.table) \
             .option("user", cf.user) \
             .option("password", cf.password) \
-            .option("inferSchema", True) \
-            .option("header", True) \
+            .option("inferSchema", cf.infer_schema) \
+            .option("header", cf.first_row_is_header) \
             .load()
 
         df.write.format("csv") \
@@ -40,11 +40,11 @@ def sparkConnect():
         print('\n', cf.input_file_path, '\n')
 
     col = list(df.dtypes)
-
+    print(len(col))
     for i in range(len(col)):
         col[i] = list(col[i])
         col[i][1] = type_[col[i][1]]
-    print('\n', col, '\n')
+    # print('\n', col, '\n')
 
     x = []
     for i, j in col:
@@ -62,9 +62,7 @@ def sparkConnect():
             else:
                 max_length = 35
 
-
-            print(i,j, max_length)
-            x.append(TableDefinition.Column(i, SqlType.varchar(max_length+1), NULLABLE))
+            x.append(TableDefinition.Column(i, SqlType.varchar(max_length), NULLABLE))
         elif j == 'int':
             x.append(TableDefinition.Column(i, SqlType.int(), NULLABLE))
         elif j == 'date':
@@ -76,6 +74,8 @@ def sparkConnect():
         elif j == 'big_int':
             x.append(TableDefinition.Column(i, SqlType.big_int(), NULLABLE))
         elif j == 'double':
-            x.append(TableDefinition.Column(i, SqlType.double(), NULLABLE))
-    print(x)
+            x.append(TableDefinition.Column(i, SqlType.numeric(10, 4), NULLABLE))
+        else:
+            x.append(TableDefinition.Column(i, SqlType.text(), NULLABLE))
+    print(len(x))
     return x

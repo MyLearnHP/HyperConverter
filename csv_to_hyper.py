@@ -17,7 +17,7 @@ customer_table = TableDefinition(
     columns=sparkConnect()
 )
 
-
+print('\n', cf.input_file_path, '\n')
 def run_create_hyper_file_from_csv():
     """
     Loading data from a csv into a new Hyper file
