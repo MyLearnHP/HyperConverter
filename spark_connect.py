@@ -5,6 +5,7 @@ from dict_list import type_
 from tableauhyperapi import HyperProcess, Telemetry, Connection, CreateMode, NOT_NULLABLE, NULLABLE, SqlType, TableDefinition, \
     Inserter, escape_name, escape_string_literal, HyperException
 import re
+import pandas
 
 spark = SparkSession.builder.master("local").appName("DB_test").getOrCreate()
 
@@ -33,13 +34,21 @@ def sparkConnect():
 
         df.write.format("csv") \
             .option("enoding", cf.charset) \
+            .option("header", cf.first_row_is_header) \
+            .option("sep", cf.delimiter) \
             .save('/home/hari/HyperConverter/test')
+
+        # pdf = df.select('*').toPandas()
+        # path = '/home/hari/HyperConverter/test.csv'
+        # pdf.to_csv(path, sep=',', index=False)
 
         path = glob.glob('/home/hari/HyperConverter/test/part*.csv')
         cf.input_file_path = path[0]
+        cf.input_file_path = path
         print('\n', cf.input_file_path, '\n')
 
     col = list(df.dtypes)
+    print(col)
     print(len(col))
     for i in range(len(col)):
         col[i] = list(col[i])
@@ -48,6 +57,7 @@ def sparkConnect():
 
     x = []
     for i, j in col:
+        print(i, j)
         if j == 'varchar':
             max_length = df.agg({i: "max"}).collect()[0]
             #print(max_length)
@@ -61,7 +71,7 @@ def sparkConnect():
                     max_length = 30
             else:
                 max_length = 35
-
+            print(max_length)
             x.append(TableDefinition.Column(i, SqlType.varchar(max_length), NULLABLE))
         elif j == 'int':
             x.append(TableDefinition.Column(i, SqlType.int(), NULLABLE))
@@ -74,8 +84,10 @@ def sparkConnect():
         elif j == 'big_int':
             x.append(TableDefinition.Column(i, SqlType.big_int(), NULLABLE))
         elif j == 'double':
-            x.append(TableDefinition.Column(i, SqlType.numeric(10, 4), NULLABLE))
-        else:
+            x.append(TableDefinition.Column(i, SqlType.double(), NULLABLE))
+        elif j == 'text':
+            print("this is culprate", i, j)
             x.append(TableDefinition.Column(i, SqlType.text(), NULLABLE))
+    print(x)
     print(len(x))
     return x

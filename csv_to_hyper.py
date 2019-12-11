@@ -35,10 +35,9 @@ def run_create_hyper_file_from_csv():
             # `execute_command` executes a SQL statement and returns the impacted row count.
             count_in_customer_table = connection.execute_command(
                 command=f"COPY {customer_table.table_name} from {escape_string_literal(cf.input_file_path)} with "
-                f"(format csv, NULL 'NULL', delimiter ',', header, quote '\"', escape '\\')")
+                f"(format csv, NULL 'NULL', delimiter ',', header)")
 
-            print(
-                f"The number of rows in table {customer_table.table_name} is {count_in_customer_table}.")
+            print(f"The number of rows in table {customer_table.table_name} is {count_in_customer_table}.")
 
         print("The connection to the Hyper file has been closed.")
     print("The Hyper process has been shut down.")

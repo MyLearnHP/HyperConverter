@@ -1,6 +1,6 @@
 driver = "com.simba.spark.jdbc41.Driver"
-access_token = "dapi1345a19c0ecd096f3a7df9407307e0c2"
-url = "jdbc:spark://dbc-7461a053-3df1.cloud.databricks.com:443/default;transportMode=http;ssl=1;httpPath=sql/protocolv1/o/4471256816674954/1122-120031-fry34;AuthMech=3;UID=token;PWD=" + access_token
+access_token = "dapi32ec1c4c866c8bac4b8a0be2b417b326"
+url = "jdbc:spark://dbc-7461a053-3df1.cloud.databricks.com:443/default;transportMode=http;ssl=1;httpPath=sql/protocolv1/o/4471256816674954/1206-115553-grins359;AuthMech=3;UID=token;PWD=" + access_token
 
 user = "hari.prasad@d3analytics.com"
 password = "Devil@1998"
